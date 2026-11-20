@@ -108,3 +108,10 @@ def test_push_to_hub_cleans_staged_configuration(upload_fails):
 
     assert len(staged_paths) == 1
     assert not staged_paths[0].parent.exists()
+
+
+def test_from_pretrained_raises_import_error_when_hub_unavailable():
+    """Regression test for issue #637: from_pretrained raises ImportError not NameError when hub unavailable."""
+    with patch("albumentations.core.hub_mixin.is_huggingface_hub_available", False):
+        with pytest.raises(ImportError, match="huggingface_hub"):
+            DummyTransform.from_pretrained("test-owner/test-repo")

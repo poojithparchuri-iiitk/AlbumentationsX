@@ -20,6 +20,8 @@ try:
     is_huggingface_hub_available = True
 except ImportError:
     is_huggingface_hub_available = False
+    hf_hub_download = None  # type: ignore[assignment]
+    HfHubHTTPError = Exception  # type: ignore[assignment,misc]
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +224,12 @@ class HubMixin:
             return transform
 
         # download the file from the Hub
+        if not is_huggingface_hub_available:
+            raise ImportError(
+                "You need to install `huggingface_hub` to load a transform from the Hub. "
+                "Run `pip install huggingface_hub`, or `pip install albumentations[hub]`.",
+            )
+
         if proxies is not None:
             logger.warning(
                 "`proxies` is not supported by this huggingface_hub version; configure proxies via environment.",
